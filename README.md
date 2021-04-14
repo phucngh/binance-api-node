@@ -1,15 +1,6 @@
-# binance-api-node [![build](https://img.shields.io/travis/Ashlar/binance-api-node/master.svg?style=flat-square)](https://travis-ci.org/Ashlar/binance-api-node) [![cover](https://img.shields.io/coveralls/github/Ashlar/binance-api-node/master?style=flat-square)](https://coveralls.io/github/Ashlar/binance-api-node?branch=master) [![bnb](https://img.shields.io/badge/binance-winner-yellow.svg?style=flat-square)](https://github.com/binance-exchange/binance-api-node)
-
-> A complete API wrapper for the [Binance](https://binance.com) API.
-
-Note: This wrapper uses Promises, if they are not supported in your environment, you might
-want to add [a polyfill](https://github.com/stefanpenner/es6-promise) for them.
-
-For PRs or issues, head over to the [source repository](https://github.com/Ashlar/binance-api-node).
-
 ### Installation
 
-    yarn add binance-api-node
+    yarn add binance-api-node-v2
 
 ### Getting started
 
@@ -18,7 +9,7 @@ you don't plan on doing authenticated calls. You can create an api key
 [here](https://www.binance.com/userCenter/createApi.html).
 
 ```js
-import Binance from 'binance-api-node'
+import Binance from 'binance-api-node-v2'
 
 const client = Binance()
 
@@ -35,7 +26,7 @@ client.time().then(time => console.log(time))
 If you do not have an appropriate babel config, you will need to use the basic commonjs requires.
 
 ```js
-const Binance = require('binance-api-node').default
+const Binance = require('binance-api-node-v2').default
 ```
 
 Every REST method returns a Promise, making this library [async await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) ready.
@@ -1641,27 +1632,45 @@ console.log(await client.depositHistory())
 
 | Param      | Type   | Required | Description                |
 | ---------- | ------ | -------- | -------------------------- |
-| asset      | String | false    |
-| status     | Number | false    | 0 (0: pending, 1: success) |
-| startTime  | Number | false    |
-| endTime    | Number | false    |
+| coin       | String | false    |
+| status     | Number | false    | 0 (0: pending, 6: credited but cannot withdraw, 1: success) |
+| startTime  | Number | false    | Default: 90 days from current timestamp |
+| endTime    | Number | false    | Default: present timestamp |
+| offset     | Number | false    | Default:0 |
+| limit      | Number | false    |
 | recvWindow | Number | false    |
+| timestamp  | Number | yes      |
 
 <details>
 <summary>Output</summary>
 
 ```js
-{
-  "depositList": [
+[
     {
-      "insertTime": 1508198532000,
-      "amount": 0.04670582,
-      "asset": "ETH",
-      "status": 1
+        "amount":"0.00999800",
+        "coin":"PAXG",
+        "network":"ETH",
+        "status":1,
+        "address":"0x788cabe9236ce061e5a892e1a59395a81fc8d62c",
+        "addressTag":"",
+        "txId":"0xaad4654a3234aa6118af9b4b335f5ae81c360b2394721c019b5d1e75328b09f3",
+        "insertTime":1599621997000,
+        "transferType":0,
+        "confirmTimes":"12/12"
+    },
+    {
+        "amount":"0.50000000",
+        "coin":"IOTA",
+        "network":"IOTA",
+        "status":1,
+        "address":"SIZ9VLMHWATXKV99LH99CIGFJFUMLEHGWVZVNNZXRJJVWBPHYWPPBOSDORZ9EQSHCZAMPVAPGFYQAUUV9DROOXJLNW",
+        "addressTag":"",
+        "txId":"ESBFVQUTPIWQNJSPXFNHNYHSQNTGKRVKPRABQWTAXCDWOAKDKYWPTVG9BGXNVNKTLEJGESAVXIKIZ9999",
+        "insertTime":1599620082000,
+        "transferType":0,
+        "confirmTimes":"1/1"
     }
-  ],
-  "success": true
-}
+]
 ```
 
 </details>
@@ -1676,28 +1685,43 @@ console.log(await client.withdrawHistory())
 
 | Param      | Type   | Required | Description                                                                                                |
 | ---------- | ------ | -------- | ---------------------------------------------------------------------------------------------------------- |
-| asset      | String | false    |
+| coin       | String | false    |
 | status     | Number | false    | 0 (0: Email Sent, 1: Cancelled 2: Awaiting Approval, 3: Rejected, 4: Processing, 5: Failure, 6: Completed) |
+| offset     | Number | false    |
+| limit      | Number | false    |
 | startTime  | Number | false    |
 | endTime    | Number | false    |
 | recvWindow | Number | false    |
+| timestamp  | Number | yes      |
 
 <details>
 <summary>Output</summary>
 
 ```js
-{
-  "withdrawList": [
+[
     {
-      "amount": 1,
-      "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
-      "asset": "ETH",
-      "applyTime": 1508198532000,
-      "status": 4
+        "address": "0x94df8b352de7f46f64b01d3666bf6e936e44ce60",
+        "amount": "8.91000000",
+        "applyTime": "2019-10-12 11:12:02",
+        "coin": "USDT",
+        "id": "b6ae22b3aa844210a7041aee7589627c",
+        "withdrawOrderId": "WITHDRAWtest123", // will not be returned if there's no withdrawOrderId for this withdraw.
+        "network": "ETH", 
+        "transferType": 0,   // 1 for internal transfer, 0 for external transfer   
+        "status": 6,
+        "txId": "0xb5ef8c13b968a406cc62a93a8bd80f9e9a906ef1b3fcf20a2e48573c17659268"
     },
-  ],
-  "success": true
-}
+    {
+        "address": "1FZdVHtiBqMrWdjPyRPULCUceZPJ2WLCsB",
+        "amount": "0.00150000",
+        "applyTime": "2019-09-24 12:43:45",
+        "coin": "BTC",
+        "id": "156ec387f49b41df8724fa744fa82719",
+        "network": "BTC",
+        "status": 6,
+        "txId": "60fd9007ebfddc753455f95fafa808c4302c836e4d1eebc5a132c36c1d8ac354"
+    }
+]
 ```
 
 </details>
@@ -1709,28 +1733,31 @@ Triggers the withdraw process (_untested for now_).
 ```js
 console.log(
   await client.withdraw({
-    asset: 'ETH',
+    coin: 'ETH',
+    network: 'ETH'
     address: '0xfa97c22a03d8522988c709c24283c0918a59c795',
-    amount: 100,
+    amount: 2,
   }),
 )
 ```
 
 | Param      | Type   | Required | Description                |
 | ---------- | ------ | -------- | -------------------------- |
-| asset      | String | true     |
+| coin       | String | true     |
+| network    | String | false    |
 | address    | String | true     |
+| addressTag | String | false    | Secondary address identifier for coins like XRP,XMR etc.|
 | amount     | Number | true     |
 | name       | String | false    | Description of the address |
 | recvWindow | Number | false    |
+| timestamp  | Number | true     |
 
 <details>
 <summary>Output</summary>
 
 ```js
 {
-  "msg": "success",
-  "success": true
+    "id":"7213fea8e94b4a5593d507237e5a555b"
 }
 ```
 
@@ -1738,29 +1765,8 @@ console.log(
 
 #### depositAddress
 
-Retrieve the account deposit address for a specific asset.
+Removed. Use [capitalDepositAddress](#capitalDepositAddress)
 
-```js
-console.log(await client.depositAddress({ asset: 'NEO' }))
-```
-
-| Param | Type   | Required | Description    |
-| ----- | ------ | -------- | -------------- |
-| asset | String | true     | The asset name |
-
-<details>
-<summary>Output</summary>
-
-```js
-{
-  address: 'AM6ytPW78KYxQCmU2pHYGcee7GypZ7Yhhc',
-  addressTag: '',
-  asset: 'NEO',
-  success: true,
-}
-```
-
-</details>
 
 #### tradeFee
 
@@ -1774,20 +1780,18 @@ console.log(await client.tradeFee())
 <summary>Output</summary>
 
 ```js
-{
-  tradeFee: [{
-    symbol: 'BTC',
-    maker: 0.0001,
-    taker: 0.0001,
-  },
-  {
-    symbol: 'LTC',
-    maker: 0.0001,
-    taker: 0.0001,
-  }
-  ...],
-  success: true,
-}
+[
+    {
+      "symbol": "ADABNB",
+      "makerCommission": 0.9000,
+      "takerCommission": 1.0000
+    },
+    {
+      "symbol": "BNBBTC",
+      "makerCommission": 0.3000,
+      "takerCommission": 0.3000
+    }
+]
 
 ```
 
@@ -3289,7 +3293,7 @@ An utility error code map is also being exported by the package in order for you
 conditionals upon specific errors that could occur while using the API.
 
 ```js
-import Binance, { ErrorCodes } from 'binance-api-node'
+import Binance, { ErrorCodes } from 'binance-api-node-v2'
 
 console.log(ErrorCodes.INVALID_ORDER_TYPE) // -1116
 ```
