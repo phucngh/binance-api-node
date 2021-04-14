@@ -1,6 +1,6 @@
 {
-  "name": "binance-api-node",
-  "version": "0.10.38",
+  "name": "binance-api-node-v2",
+  "version": "0.0.1",
   "description": "A node API wrapper for Binance",
   "main": "dist",
   "files": [
@@ -52,7 +52,7 @@
       "!test/utils.js"
     ]
   },
-  "author": "Balthazar Gronon <git@balthazar.dev>",
-  "homepage": "https://github.com/Ashlar/binance-api-node",
+  "author": "phucngh<phucnh.dev@gmail.com>",
+  "homepage": "https://github.com/phucngh/binance-api-node",
   "license": "MIT"
 }
